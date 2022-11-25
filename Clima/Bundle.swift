@@ -17,7 +17,7 @@ extension Bundle {
             let plist = NSDictionary(contentsOfFile: filePath)
             
             guard let value = plist?.object(forKey: "API_KEY") as? String else {
-                fatalError("Couldn't find key 'API_Key' in 'SecretKey.plist'.")
+                fatalError("how to change....'.")
             }
             return value
         }
