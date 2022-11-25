@@ -1,0 +1,27 @@
+<svg width="84" height="84" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Weather / Evening / Hot / 1 ">
+<g clip-path="url(#clip0_2_52)">
+<rect width="84" height="84" rx="42" fill="url(#paint0_linear_2_52)"/>
+<path id="Path 51" fill-rule="evenodd" clip-rule="evenodd" d="M91.1448 55.4513C91.1448 55.4513 79.2329 48 70.2356 48C58.3342 48 50.3769 58.1623 40.7499 58.1623C29.53 58.1623 28.1181 55.2257 21.8264 55.2257C12.9341 55.2257 1.19756 60.7322 -4.99199 58.7448C-9.98684 57.141 -16 53.9018 -16 53.9018V81.1014L91.1448 82.7361V55.4513Z" fill="url(#paint1_linear_2_52)"/>
+<path id="Path 51_2" fill-rule="evenodd" clip-rule="evenodd" d="M-16.2341 73.6237C-16.2341 73.6237 -15.691 56.5116 -3.37718 53.8359C7.38902 52.2447 15.6895 64.5951 25.3165 64.5951C36.5365 64.5951 41.8241 57.4275 52.7176 57.4275C60.6627 57.4275 68.4209 63.659 79.2403 61.499C103.272 56.7011 90.9107 55.878 90.9107 55.878V83.0775L-16.2341 84.7123V73.6237Z" fill="url(#paint2_linear_2_52)"/>
+<circle id="Oval 1" cx="33" cy="20" r="7" fill="#FFF9C7"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2_52" x1="-11.4399" y1="0" x2="-11.4399" y2="106.88" gradientUnits="userSpaceOnUse">
+<stop offset="0.0677083" stop-color="#FF8CD1"/>
+<stop offset="0.828125" stop-color="#FFE05B"/>
+</linearGradient>
+<linearGradient id="paint1_linear_2_52" x1="91.1448" y1="48" x2="91.1448" y2="82.7361" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FFB022"/>
+<stop offset="1" stop-color="#FFD6BE"/>
+</linearGradient>
+<linearGradient id="paint2_linear_2_52" x1="-16.2341" y1="53.6943" x2="-16.2341" y2="84.7123" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FED54C"/>
+<stop offset="1" stop-color="#FEDD3A"/>
+</linearGradient>
+<clipPath id="clip0_2_52">
+<rect width="84" height="84" rx="42" fill="white"/>
+</clipPath>
+</defs>
+</svg>
