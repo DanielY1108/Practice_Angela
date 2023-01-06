@@ -9,12 +9,15 @@ import UIKit
 import SceneKit
 import ARKit
 
-class ViewController: UIViewController, ARSCNViewDelegate {
+class ViewController: UIViewController {
     
     @IBOutlet var sceneView: ARSCNView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // 위치를 추적하는데 있어 실제로 무슨일이 일어나고 있는지 좀더 쉽게 확인이 가능하게 점으로 표현을 해준다
+        self.sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
         
         // Set the view's delegate
         sceneView.delegate = self
@@ -22,13 +25,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
         
-        //        // Create a new scene
-        //        let scene = SCNScene(named: "art.scnassets/ship.scn")!
-        //
-        //        // Set the scene to the view
-        //        sceneView.scene = scene
+                // Create a new scene
+                let scene = SCNScene(named: "art.scnassets/ship.scn")!
         
-        makeDice()
+                // Set the scene to the view
+           sceneView.scene = scene
+        
+        //        makeDice()
     }
     
     func makeDice() {
@@ -123,9 +126,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
         
-        // 나의 기기가 지원하는지 알수 있습니다. (요즘은 대부분 iPhoneSE 이상을 사용하므로 딱히 분기처리를 하여 사용할 필요는 없을 듯 싶다)
-        print("Orientation Tracking is supported = \(ARConfiguration.isSupported)")
-        print("World Tracking is supported = \(ARWorldTrackingConfiguration.isSupported)")
+        // 수평면을 감지하기 위해 configuration에 접근 후 표면을 감지하는 프로퍼티(planeDetection)를 추가합니다
+        configuration.planeDetection = .horizontal
         
         // Run the view's session
         sceneView.session.run(configuration)
@@ -139,3 +141,37 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
 }
+
+// SceneKit의 델리게이트를 설정해준다.
+extension ViewController: ARSCNViewDelegate {
+    // 새로운 anchor의 node가 Scene의 추가 되었을을 알린다.
+    // ARAnchor : ARScene의 객체를 배치하는데 있어 카메라를 기준으로 실제 위치 및 방향 추적함 (일종의 바닥의 깔린 타일과 동일)
+    // 해당 타일을 사용하여 개채를 원하는 곳에 배치합니다.
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        
+        // ARAnchor는 광범위한 범주이다. (ARPlaneAnchor(평면), ARObjectAnchor(3D 객체), ARImageAnchor(이미지), ARFaceAnchor(얼굴))
+        // 우리는 바닥에 주사위를 놓고 싶으니까 이중에서 평면감지를 사용해야 한다.
+        if anchor is ARPlaneAnchor {
+            
+            // ARAnchor를 다운캐스팅하여 ARPlaneAnchor로 변환시킨다.
+            // ARPlaneAnchor 속성으로는 planeExtent이 존재한다 (평면에서 감지된 너비와 높이)
+            let planeAnchor = anchor as! ARPlaneAnchor
+            
+            // ScneneKit에 평면을 생성할 수 있도록 SCNPlane을 사용하여 만들어준다
+            // 감지된 속성을 갖고 SCNPlane을 생성시킨다
+            let plane = SCNPlane(width: CGFloat(planeAnchor.planeExtent.width), height: CGFloat(planeAnchor.planeExtent.height))
+            
+            // 노트드를 만들어주고 위치와 지오메트리를 설정한다(순서는 위의 구, 큐브, 주사위 만드는 것과 동일하다)
+            let planeNode = SCNNode()
+            
+            // x: center로 맞춤 , y: 수평면을 위하므로 0, z: center로 맞춤
+            planeNode.position = SCNVector3(x: planeAnchor.center.x, y: 0, z: planeAnchor.center.z)
+            
+            // 한가지 문제점이 있습니다.
+            
+        } else {
+            return
+        }
+    }
+}
+
