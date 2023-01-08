@@ -36,11 +36,23 @@ class ViewController: UIViewController {
         //        makeDice()
     }
     
-    @IBAction func rollDiceTapped(_ sender: UIBarButtonItem) {
+    @IBAction func rollDiceButtonTapped(_ sender: UIBarButtonItem) {
+        rollAll()
     }
     
-    @IBAction func removeDiceTapped(_ sender: UIBarButtonItem) {
-        
+    @IBAction func removeDiceButtonTapped(_ sender: UIBarButtonItem) {
+        // 전체 다이스를 제거하기 위해
+        if !diceArray.isEmpty {
+            for dice in diceArray {
+                // 노드를 제거하는 메서드 removeFromParentNode
+                dice.removeFromParentNode()
+            }
+        }
+    }
+    
+    // 디바이스의 움직임을 관측하여 동작을 실행하는 메서드
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        rollAll()
     }
     
     
@@ -88,19 +100,7 @@ class ViewController: UIViewController {
             
             sceneView.scene.rootNode.addChildNode(diceNode)
             
-            // 한 축당 4개의 면이 나오므로 랜덤 숫자를 1~4사이로 설정합니다.
-            // 또한 주사위는 90도 마다 숫자가 위로 향하므로 90°를 곱해줍시다.
-            let randonX = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
-            let randonZ = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
-            
-            // AR의 애니메이션 효과를 위해여 runAction이라는 메서드를 사용합니다.
-            // rotateBy 회전하는 애니메이션을 (x, y, z축을 기준으로 얼마동안(duration) 회전할지 정해줍니다)
-            // 랜덤 숫자에 곱하기 5를 해준 이유는 회전이 단조로워서 5바퀴를 더 회전 시키기 위해서 곱해줌
-            // y축을 설정안한 이유는 y축기준으로 회전을 한다고 해도 나오는 숫자는 그대로이기 때문에 0으로 설정
-            diceNode.runAction(SCNAction.rotateBy(x: CGFloat(randonX * 5),
-                                                  y: 0,
-                                                  z: CGFloat(randonZ * 5),
-                                                  duration: 0.5))
+           
             
             sceneView.autoenablesDefaultLighting = true
         }
@@ -116,7 +116,19 @@ class ViewController: UIViewController {
     }
     
     func roll(dice: SCNNode) {
+        // 한 축당 4개의 면이 나오므로 랜덤 숫자를 1~4사이로 설정합니다.
+        // 또한 주사위는 90도 마다 숫자가 위로 향하므로 90°를 곱해줍시다.
+        let randonX = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
+        let randonZ = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
         
+        // AR의 애니메이션 효과를 위해여 runAction이라는 메서드를 사용합니다.
+        // rotateBy 회전하는 애니메이션을 (x, y, z축을 기준으로 얼마동안(duration) 회전할지 정해줍니다)
+        // 랜덤 숫자에 곱하기 5를 해준 이유는 회전이 단조로워서 5바퀴를 더 회전 시키기 위해서 곱해줌
+        // y축을 설정안한 이유는 y축기준으로 회전을 한다고 해도 나오는 숫자는 그대로이기 때문에 0으로 설정
+        dice.runAction(SCNAction.rotateBy(x: CGFloat(randonX * 5),
+                                              y: 0,
+                                              z: CGFloat(randonZ * 5),
+                                              duration: 1))
     }
     
     func makeDice() {

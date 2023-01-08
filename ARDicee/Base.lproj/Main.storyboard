@@ -32,12 +32,12 @@
                     <navigationItem key="navigationItem" title="DICE" id="E2o-MN-ifq">
                         <barButtonItem key="leftBarButtonItem" systemItem="trash" id="7bI-2I-eEn">
                             <connections>
-                                <action selector="removeDiceTapped:" destination="BV1-FR-VrT" id="h5O-DJ-twu"/>
+                                <action selector="removeDiceButtonTapped:" destination="BV1-FR-VrT" id="UDr-FO-txG"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="refresh" id="P3E-un-rxT">
                             <connections>
-                                <action selector="rollDiceTapped:" destination="BV1-FR-VrT" id="2b1-Hq-yeh"/>
+                                <action selector="rollDiceButtonTapped:" destination="BV1-FR-VrT" id="2cJ-Ig-dnB"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
