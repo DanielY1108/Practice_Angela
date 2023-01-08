@@ -25,13 +25,51 @@ class ViewController: UIViewController {
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
         
-                // Create a new scene
-                let scene = SCNScene(named: "art.scnassets/ship.scn")!
-        
-                // Set the scene to the view
-           sceneView.scene = scene
+//                // Create a new scene
+//                let scene = SCNScene(named: "art.scnassets/ship.scn")!
+//
+//                // Set the scene to the view
+//           sceneView.scene = scene
         
         //        makeDice()
+    }
+    // 터치 대리자 메서드를 통해 ARKit의 객체의 실제 위치를 변경해보기
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // Set<UITouch>로 구성이 되어있다. 다중 터치를 할경우 컬렉션 Set이 필요하다.
+        // 즉, 우리는 단일 터치만 원하므로 첫번재로 접근해서 사용
+        if let touch = touches.first {
+            // 터치의 위치를 감지하기 위해서 location(in: SKNode)을 사용한다. in: 감지 된 위치
+            let touchLocation = touch.location(in: sceneView)
+            
+            // 화면은 실제로 3D가 아닌 2D이다
+            // ARKit의 raycastQuery는 2D 공간에서 터치하는 지점을 3D좌표로 변환시켜준다.
+            // from: sceneView의 위치, allowing: 2D공간에서 z축을 추가하여 3D 터치로 만들어줌, alignment: 수평
+            guard let query = sceneView.raycastQuery(from: touchLocation, allowing: .estimatedPlane, alignment: .horizontal) else { return }
+            let results = sceneView.session.raycast(query)
+            
+            // hitResult를 프린트해보면 클릭시 좌표마다 worldTransform에서 다른 translation=(x,y,z) translation=(x°,y°,z°)가 나옵니다.
+            guard let hitResult = results.first else { return }
+            
+            // 이제 주사위를 불러 오겠습니다.
+            let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
+            
+            guard let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) else {
+                fatalError("Failed load SCNScene")
+            }
+            
+            // worldTransform 은 4x4 위치, 회전, 스케일에 대한 행렬입니다.
+            // 우리는 클릭 시 주사위를 그 위치에 생성을 시키기 위해 터치위치인 hitResult를 받아서 만들어보겠다.
+            // columns : 4행은 카메라의 따른 원근법이라고 알고 있으면 될꺼같다
+            // y축을 이대로 (hitResult.worldTransform.columns.3.y) 설정해주면 객체가 평면 기준으로 반이 짤리는 현상이 발생하게 된다.
+            // 즉 y축의 높이를 객체의 크기의 절반만큼 더해줍시다 (diceNode.boundingSphere.radius)
+            diceNode.position = SCNVector3(x: hitResult.worldTransform.columns.3.x,
+                                           y: hitResult.worldTransform.columns.3.y + diceNode.boundingSphere.radius,
+                                           z: hitResult.worldTransform.columns.3.z)
+            
+            sceneView.scene.rootNode.addChildNode(diceNode)
+            
+            sceneView.autoenablesDefaultLighting = true
+        }
     }
     
     func makeDice() {
@@ -144,34 +182,49 @@ class ViewController: UIViewController {
 
 // SceneKit의 델리게이트를 설정해준다.
 extension ViewController: ARSCNViewDelegate {
-    // 새로운 anchor의 node가 Scene의 추가 되었을을 알린다.
+    // renderer : 새로운 anchor의 node가 Scene의 추가 되었을을 알린다.
+    // didAdd node : 새로 추가될 노드
     // ARAnchor : ARScene의 객체를 배치하는데 있어 카메라를 기준으로 실제 위치 및 방향 추적함 (일종의 바닥의 깔린 타일과 동일)
-    // 해당 타일을 사용하여 개채를 원하는 곳에 배치합니다.
+    // 이 메서드는 해당 타일을 사용하여 개채를 원하는 곳에 배치합니다.
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        
         // ARAnchor는 광범위한 범주이다. (ARPlaneAnchor(평면), ARObjectAnchor(3D 객체), ARImageAnchor(이미지), ARFaceAnchor(얼굴))
         // 우리는 바닥에 주사위를 놓고 싶으니까 이중에서 평면감지를 사용해야 한다.
-        if anchor is ARPlaneAnchor {
-            
-            // ARAnchor를 다운캐스팅하여 ARPlaneAnchor로 변환시킨다.
-            // ARPlaneAnchor 속성으로는 planeExtent이 존재한다 (평면에서 감지된 너비와 높이)
-            let planeAnchor = anchor as! ARPlaneAnchor
-            
-            // ScneneKit에 평면을 생성할 수 있도록 SCNPlane을 사용하여 만들어준다
-            // 감지된 속성을 갖고 SCNPlane을 생성시킨다
-            let plane = SCNPlane(width: CGFloat(planeAnchor.planeExtent.width), height: CGFloat(planeAnchor.planeExtent.height))
-            
-            // 노트드를 만들어주고 위치와 지오메트리를 설정한다(순서는 위의 구, 큐브, 주사위 만드는 것과 동일하다)
-            let planeNode = SCNNode()
-            
-            // x: center로 맞춤 , y: 수평면을 위하므로 0, z: center로 맞춤
-            planeNode.position = SCNVector3(x: planeAnchor.center.x, y: 0, z: planeAnchor.center.z)
-            
-            // 한가지 문제점이 있습니다.
-            
-        } else {
-            return
-        }
+        
+        // ARAnchor를 다운캐스팅하여 ARPlaneAnchor로 변환시킨다.
+        // ARPlaneAnchor 속성으로는 planeExtent이 존재한다 (평면에서 감지된 너비와 높이)
+        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+        
+        // ScneneKit에 평면을 생성할 수 있도록 SCNPlane을 사용하여 만들어준다
+        // 감지된 속성(planeExtent)을 갖고 SCNPlane을 생성시킨다
+        let plane = SCNPlane(width: CGFloat(planeAnchor.planeExtent.width), height: CGFloat(planeAnchor.planeExtent.height))
+        
+        // 노트드를 만들어주고 위치와 지오메트리를 설정한다(순서는 위의 달, 큐브, 주사위 만드는 것과 동일하다)
+        let planeNode = SCNNode()
+        
+        // x: center로 맞춤 , y: 수평면을 위하므로 0, z: center로 맞춤
+        planeNode.position = SCNVector3(x: planeAnchor.center.x, y: 0, z: planeAnchor.center.z)
+        
+        // 여기서 한가지 문제점이 있습니다. 헷갈릴 수도 있으니 그림과 함께 보면서 이해해 보세요.
+        // 기본적으로 SCNPlane은 수직 평면으로 형성이 됩니다. (x와 y축으로 되어있는 수직평면)
+        // 따라서 이 수직면을 x와 z축을 사용하는 평면으로 변환을 해야 합니다. (90°로 눞여야 된다)
+        // angle : 기본 단위는 radians입니다, (1 rad = 57.3°, 1π rad = 180° 입니다)
+        //         또한 양수일 때 시계방향, 음수일 때 반시계방향임을 고려해야 해야 한다.
+        
+        // x, y, z의 축으로 회전 시킨다. (1이면 사용, 0이면 사용하지 않음)
+        planeNode.transform = SCNMatrix4MakeRotation(-Float.pi/2 , 1, 0, 0)
+        
+        let gridMaterial = SCNMaterial()
+        
+        // 팁으로 png 파일은 투명도가 제공이 됩니다. grid의 빈곳은 배경이 보이죠.
+        // grid.png 불러온다.
+        gridMaterial.diffuse.contents = UIImage(named: "art.scnassets/grid.png")
+        
+        plane.materials = [gridMaterial]
+        
+        // 뼈대 설정
+        planeNode.geometry = plane
+        
+        // addChildNode를 추가 해준다.
+        node.addChildNode(planeNode)
     }
 }
-
