@@ -65,41 +65,44 @@ class ViewController: UIViewController {
             // hitResult를 프린트해보면 클릭시 좌표마다 worldTransform에서 다른 translation=(x,y,z) translation=(x°,y°,z°)가 나옵니다.
             guard let hitResult = results.first else { return }
             
-            // 이제 주사위를 불러 오겠습니다.
-            // .scn 파일 직접 불러오기
-            let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
-            
-            // node를 만들어 줘야 한다.
-            // withName은 위의 diceCollada로 파일로 접근 후 인스펙터창에서 Identity 이름을 입력 해주면 됩니다.
-            // recursively는 재귀적으로 수행하여 여기서 예를들면 Dice의 childNode 모두를 검색 및 사용합니다.
-            // (childNode가 없더라도 나중에 추가할 가능성이 있기 때문에 보통은 true로 설정해줍니다)
-            guard let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) else {
-                fatalError("Failed load SCNScene")
-            }
-            
-            // 위치를 정해줍시다. (터치한 곳의 위치)
-            // worldTransform 은 4x4 위치, 회전, 스케일에 대한 행렬입니다.
-            // 우리는 클릭 시 주사위를 그 위치에 생성을 시키기 위해 터치 위치(hitResult)를 받아서 만들어보겠다.
-            // columns의 4행은 카메라의 따른 원근법이라고 알고 있으면 될꺼같다
-            // y축을 이대로 (hitResult.worldTransform.columns.3.y) 설정해주면 객체가 평면 기준으로 반이 짤리는 현상이 발생하게 된다.
-            // 즉 y축의 높이를 객체의 크기의 절반만큼 더해줍시다 (diceNode.boundingSphere.radius)
-            diceNode.position = SCNVector3(x: hitResult.worldTransform.columns.3.x,
-                                           y: hitResult.worldTransform.columns.3.y + diceNode.boundingSphere.radius,
-                                           z: hitResult.worldTransform.columns.3.z)
-            
-            // 위치마다 diceNode를 추가 하여 줍니다
-            diceArray.append(diceNode)
-            
-            sceneView.scene.rootNode.addChildNode(diceNode)
-            
-            
+            addDice(alLocation: hitResult)
             
             sceneView.autoenablesDefaultLighting = true
         }
     }
     
-    func rollAll() {
+    // 주사위 만들기
+    func addDice(alLocation location: ARRaycastResult) {
+        // 이제 주사위를 불러 오겠습니다.
+        // .scn 파일 직접 불러오기
+        let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
         
+        // node를 만들어 줘야 한다.
+        // withName은 위의 diceCollada로 파일로 접근 후 인스펙터창에서 Identity 이름을 입력 해주면 됩니다.
+        // recursively는 재귀적으로 수행하여 여기서 예를들면 Dice의 childNode 모두를 검색 및 사용합니다.
+        // (childNode가 없더라도 나중에 추가할 가능성이 있기 때문에 보통은 true로 설정해줍니다)
+        guard let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) else {
+            fatalError("Failed load SCNScene")
+        }
+        
+        // 위치를 정해줍시다. (터치한 곳의 위치)
+        // worldTransform 은 4x4 위치, 회전, 스케일에 대한 행렬입니다.
+        // 우리는 클릭 시 주사위를 그 위치에 생성을 시키기 위해 터치 위치(hitResult)를 받아서 만들어보겠다.
+        // columns의 4행은 카메라의 따른 원근법이라고 알고 있으면 될꺼같다
+        // y축을 이대로 (hitResult.worldTransform.columns.3.y) 설정해주면 객체가 평면 기준으로 반이 짤리는 현상이 발생하게 된다.
+        // 즉 y축의 높이를 객체의 크기의 절반만큼 더해줍시다 (diceNode.boundingSphere.radius)
+        diceNode.position = SCNVector3(x: location.worldTransform.columns.3.x,
+                                       y: location.worldTransform.columns.3.y + diceNode.boundingSphere.radius,
+                                       z: location.worldTransform.columns.3.z)
+        
+        // 위치마다 diceNode를 추가 하여 줍니다
+        diceArray.append(diceNode)
+        
+        sceneView.scene.rootNode.addChildNode(diceNode)
+    }
+    
+    // 모든 주사위 굴리기
+    func rollAll() {
         if !diceArray.isEmpty {
             for dice in diceArray {
                 roll(dice: dice)
@@ -107,6 +110,7 @@ class ViewController: UIViewController {
         }
     }
     
+    // 주사위 굴리는 동작
     func roll(dice: SCNNode) {
         // 한 축당 4개의 면이 나오므로 랜덤 숫자를 1~4사이로 설정합니다.
         // 또한 주사위는 90도 마다 숫자가 위로 향하므로 90°를 곱해줍시다.
@@ -158,6 +162,14 @@ extension ViewController: ARSCNViewDelegate {
         // ARPlaneAnchor 속성으로는 planeExtent이 존재한다 (평면에서 감지된 너비와 높이)
         guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
         
+        let planeNode = createPlane(with: planeAnchor)
+        
+        // addChildNode를 추가 해준다.
+        node.addChildNode(planeNode)
+    }
+    
+    // 평면 생성시키기
+    func createPlane(with planeAnchor: ARPlaneAnchor) -> SCNNode {
         // ScneneKit에 평면을 생성할 수 있도록 SCNPlane을 사용하여 만들어준다
         // 감지된 속성(planeExtent)을 갖고 SCNPlane을 생성시킨다
         let plane = SCNPlane(width: CGFloat(planeAnchor.planeExtent.width), height: CGFloat(planeAnchor.planeExtent.height))
@@ -188,8 +200,7 @@ extension ViewController: ARSCNViewDelegate {
         // 뼈대 설정
         planeNode.geometry = plane
         
-        // addChildNode를 추가 해준다.
-        node.addChildNode(planeNode)
+        return planeNode
     }
 }
 
