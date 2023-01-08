@@ -11,6 +11,8 @@ import ARKit
 
 class ViewController: UIViewController {
     
+    var diceArray = [SCNNode]()
+    
     @IBOutlet var sceneView: ARSCNView!
     
     override func viewDidLoad() {
@@ -33,6 +35,15 @@ class ViewController: UIViewController {
         
         //        makeDice()
     }
+    
+    @IBAction func rollDiceTapped(_ sender: UIBarButtonItem) {
+    }
+    
+    @IBAction func removeDiceTapped(_ sender: UIBarButtonItem) {
+        
+    }
+    
+    
     // 터치 대리자 메서드를 통해 ARKit의 객체의 실제 위치를 변경해보기
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         // Set<UITouch>로 구성이 되어있다. 다중 터치를 할경우 컬렉션 Set이 필요하다.
@@ -72,6 +83,9 @@ class ViewController: UIViewController {
                                            y: hitResult.worldTransform.columns.3.y + diceNode.boundingSphere.radius,
                                            z: hitResult.worldTransform.columns.3.z)
             
+            // 위치마다 diceNode를 추가 하여 줍니다
+            diceArray.append(diceNode)
+            
             sceneView.scene.rootNode.addChildNode(diceNode)
             
             // 한 축당 4개의 면이 나오므로 랜덤 숫자를 1~4사이로 설정합니다.
@@ -90,6 +104,19 @@ class ViewController: UIViewController {
             
             sceneView.autoenablesDefaultLighting = true
         }
+    }
+    
+    func rollAll() {
+        
+        if !diceArray.isEmpty {
+            for dice in diceArray {
+                roll(dice: dice)
+            }
+        }
+    }
+    
+    func roll(dice: SCNNode) {
+        
     }
     
     func makeDice() {
