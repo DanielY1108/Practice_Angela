@@ -51,15 +51,21 @@ class ViewController: UIViewController {
             guard let hitResult = results.first else { return }
             
             // 이제 주사위를 불러 오겠습니다.
+            // .scn 파일 직접 불러오기
             let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
             
+            // node를 만들어 줘야 한다.
+            // withName은 위의 diceCollada로 파일로 접근 후 인스펙터창에서 Identity 이름을 입력 해주면 됩니다.
+            // recursively는 재귀적으로 수행하여 여기서 예를들면 Dice의 childNode 모두를 검색 및 사용합니다.
+            // (childNode가 없더라도 나중에 추가할 가능성이 있기 때문에 보통은 true로 설정해줍니다)
             guard let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) else {
                 fatalError("Failed load SCNScene")
             }
             
+            // 위치를 정해줍시다. (터치한 곳의 위치)
             // worldTransform 은 4x4 위치, 회전, 스케일에 대한 행렬입니다.
-            // 우리는 클릭 시 주사위를 그 위치에 생성을 시키기 위해 터치위치인 hitResult를 받아서 만들어보겠다.
-            // columns : 4행은 카메라의 따른 원근법이라고 알고 있으면 될꺼같다
+            // 우리는 클릭 시 주사위를 그 위치에 생성을 시키기 위해 터치 위치(hitResult)를 받아서 만들어보겠다.
+            // columns의 4행은 카메라의 따른 원근법이라고 알고 있으면 될꺼같다
             // y축을 이대로 (hitResult.worldTransform.columns.3.y) 설정해주면 객체가 평면 기준으로 반이 짤리는 현상이 발생하게 된다.
             // 즉 y축의 높이를 객체의 크기의 절반만큼 더해줍시다 (diceNode.boundingSphere.radius)
             diceNode.position = SCNVector3(x: hitResult.worldTransform.columns.3.x,
@@ -68,12 +74,26 @@ class ViewController: UIViewController {
             
             sceneView.scene.rootNode.addChildNode(diceNode)
             
+            // 한 축당 4개의 면이 나오므로 랜덤 숫자를 1~4사이로 설정합니다.
+            // 또한 주사위는 90도 마다 숫자가 위로 향하므로 90°를 곱해줍시다.
+            let randonX = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
+            let randonZ = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
+            
+            // AR의 애니메이션 효과를 위해여 runAction이라는 메서드를 사용합니다.
+            // rotateBy 회전하는 애니메이션을 (x, y, z축을 기준으로 얼마동안(duration) 회전할지 정해줍니다)
+            // 랜덤 숫자에 곱하기 5를 해준 이유는 회전이 단조로워서 5바퀴를 더 회전 시키기 위해서 곱해줌
+            // y축을 설정안한 이유는 y축기준으로 회전을 한다고 해도 나오는 숫자는 그대로이기 때문에 0으로 설정
+            diceNode.runAction(SCNAction.rotateBy(x: CGFloat(randonX * 5),
+                                                  y: 0,
+                                                  z: CGFloat(randonZ * 5),
+                                                  duration: 0.5))
+            
             sceneView.autoenablesDefaultLighting = true
         }
     }
     
     func makeDice() {
-        // .dae파일이 있는 경우 직접 불러오기
+        // .scn파일이 있는 경우 직접 불러오기
         let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
         
         // node를 만들어 줘야 한다.
@@ -228,3 +248,4 @@ extension ViewController: ARSCNViewDelegate {
         node.addChildNode(planeNode)
     }
 }
+
