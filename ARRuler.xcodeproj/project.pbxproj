@@ -23,6 +23,7 @@
 		656F2B19296C178D002E9118 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		656F2B1B296C178E002E9118 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		656F2B1E296C178E002E9118 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		65DE2757296C500E00782DD5 /* TestCalculate.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = TestCalculate.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +40,7 @@
 		656F2B06296C178D002E9118 = {
 			isa = PBXGroup;
 			children = (
+				65DE2757296C500E00782DD5 /* TestCalculate.playground */,
 				656F2B11296C178D002E9118 /* ARRuler */,
 				656F2B10296C178D002E9118 /* Products */,
 			);
