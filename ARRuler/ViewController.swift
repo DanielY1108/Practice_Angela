@@ -13,20 +13,16 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     
+    var dotNodes = [SCNNode]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Set the view's delegate
         sceneView.delegate = self
         
-        // Show statistics such as fps and timing information
-        sceneView.showsStatistics = true
-        
-        // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
-        
-        // Set the scene to the view
-        sceneView.scene = scene
+        // 점으로 무슨일 일어는지 표현
+        sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -34,6 +30,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
+        configuration.planeDetection = .horizontal
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -45,30 +42,57 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Pause the view's session
         sceneView.session.pause()
     }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        
+        // 터치되는 위치 얻기
+        let touchLocation = touch.location(in: sceneView)
+        
+        // 2D공간(화면)을 3D로 좌표를 계산하여 변환시켜 준다.
+        guard let query = sceneView.raycastQuery(from: touchLocation,
+                                                 allowing: .estimatedPlane,
+                                                 alignment: .any) else { return }
+        
+        // 터치시 3D공간의 위치 정보 결과들
+        let hitResults = sceneView.session.raycast(query)
+        
+        // 터치시 3D공간의 위치결과
+        guard let hitResult = hitResults.first else { return }
+    
+        addDot(at: hitResult)
+    }
+    
+    func addDot(at location: ARRaycastResult) {
+        
+        let dotGeometry = SCNSphere(radius: 0.005)
 
-    // MARK: - ARSCNViewDelegate
-    
-/*
-    // Override to create and configure nodes for anchors added to the view's session.
-    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        let node = SCNNode()
-     
-        return node
-    }
-*/
-    
-    func session(_ session: ARSession, didFailWithError error: Error) {
-        // Present an error message to the user
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.red
         
+        dotGeometry.materials = [material]
+    
+        let dotNode = SCNNode()
+        dotNode.geometry = dotGeometry
+        dotNode.position = SCNVector3(location.worldTransform.columns.3.x,
+                                   location.worldTransform.columns.3.y,
+                                   location.worldTransform.columns.3.z)
+        
+        sceneView.scene.rootNode.addChildNode(dotNode)
+        
+        dotNodes.append(dotNode)
+        
+        if dotNodes.count >= 2 {
+            calculate()
+        }
     }
     
-    func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
+    func calculate() {
+        let start = dotNodes[0]
+        let end = dotNodes[1]
         
+        print(start.position)
+        print(end.position)
     }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
-        
-    }
+
 }
