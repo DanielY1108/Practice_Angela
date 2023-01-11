@@ -13,6 +13,7 @@
 		650948F5296E7F5B00406A5E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 650948F3296E7F5B00406A5E /* Main.storyboard */; };
 		650948F7296E7F5C00406A5E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 650948F6296E7F5C00406A5E /* Assets.xcassets */; };
 		650948FA296E7F5C00406A5E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 650948F8296E7F5C00406A5E /* LaunchScreen.storyboard */; };
+		65094901296E800700406A5E /* Harrypotter.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 65094900296E800700406A5E /* Harrypotter.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		650948F4296E7F5B00406A5E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		650948F6296E7F5C00406A5E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		650948F9296E7F5C00406A5E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		65094900296E800700406A5E /* Harrypotter.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Harrypotter.mp4; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,10 +57,11 @@
 		650948EC296E7F5B00406A5E /* MagicPaper */ = {
 			isa = PBXGroup;
 			children = (
+				65094900296E800700406A5E /* Harrypotter.mp4 */,
 				650948ED296E7F5B00406A5E /* AppDelegate.swift */,
-				650948EF296E7F5B00406A5E /* art.scnassets */,
 				650948F1296E7F5B00406A5E /* ViewController.swift */,
 				650948F3296E7F5B00406A5E /* Main.storyboard */,
+				650948EF296E7F5B00406A5E /* art.scnassets */,
 				650948F6296E7F5C00406A5E /* Assets.xcassets */,
 				650948F8296E7F5C00406A5E /* LaunchScreen.storyboard */,
 			);
@@ -127,6 +130,7 @@
 				650948FA296E7F5C00406A5E /* LaunchScreen.storyboard in Resources */,
 				650948F7296E7F5C00406A5E /* Assets.xcassets in Resources */,
 				650948F5296E7F5B00406A5E /* Main.storyboard in Resources */,
+				65094901296E800700406A5E /* Harrypotter.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
